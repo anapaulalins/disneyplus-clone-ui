@@ -16,7 +16,7 @@ const Loading: React.FC = () => {
   return (
     <>
       <LinearGradient
-        colors={['#121f54', '#121f54', '#1e4192']}
+        colors={['#121f54', '#10194a', '#182d70', '#074a9e']}
         style={{
           flex: 1,
           alignItems: 'center',
