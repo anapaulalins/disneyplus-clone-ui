@@ -1,13 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import Swiper from 'react-native-swiper';
+/* eslint-disable react-native/no-inline-styles */
+import React, {useEffect, useState, useRef} from 'react';
 import {ScrollView} from 'react-native-gesture-handler';
 import api_key from '../../config/api_key';
 import CarouselContainerItem from '../../components/Carousel';
-
+import {Animated, Dimensions, Image, View} from 'react-native';
 import {
   Container,
-  ImageSwiper,
-  SwiperContainerImage,
   Header,
   Logo,
   Carousel,
@@ -31,9 +29,11 @@ import starWarsLogo from '../../assets/StarWars.png';
 import nationalLogo from '../../assets/nationalLogo.png';
 
 const carouselArray = [
-  {id: 0, path: ladyTramp},
-  {id: 1, path: frozen},
-  {id: 2, path: violetta},
+  {id: '0', path: null},
+  {id: '1', path: violetta},
+  {id: '2', path: ladyTramp},
+  {id: '3', path: frozen},
+  {id: '4', path: null},
 ];
 
 const api_url = `https://api.themoviedb.org/3/discover/movie?api_key=${api_key.API_KEY}&sort_by=popularity.desc&page=2`;
@@ -41,6 +41,11 @@ const api_url = `https://api.themoviedb.org/3/discover/movie?api_key=${api_key.A
 const Home: React.FC = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const {width} = Dimensions.get('screen');
+
+  const SIZE_ITEM = width * 0.85;
 
   useEffect(() => {
     const getMovies = async () => {
@@ -52,67 +57,126 @@ const Home: React.FC = () => {
   }, [loading]);
 
   return (
-    <ContainerGradient colors={['#2c3145', '#1a1c29']}>
-      <Container>
-        <Header>
-          <Logo source={logo} />
-        </Header>
-        <ScrollView style={{flex: 1}}>
-          <Swiper
-            autoplayTimeout={5}
-            dotColor="transparent"
-            activeDotColor="transparent"
-            autoplay
-            style={{height: 220}}>
-            {carouselArray.map((image) => (
-              <SwiperContainerImage key={image.id}>
-                <ImageSwiper source={image.path} />
-              </SwiperContainerImage>
-            ))}
-          </Swiper>
+    <>
+      <ContainerGradient colors={['#2c3145', '#1a1c29']}>
+        <Container>
+          <Header>
+            <Logo source={logo} />
+          </Header>
+          <ScrollView style={{flex: 1}}>
+            <Animated.FlatList
+              showsHorizontalScrollIndicator={false}
+              data={carouselArray}
+              keyExtractor={(item) => item.id}
+              horizontal
+              contentContainerStyle={{alignItems: 'center'}}
+              snapToInterval={SIZE_ITEM}
+              decelerationRate="normal"
+              bounces={false}
+              getItemLayout={(item, index) => ({
+                length: SIZE_ITEM,
+                offset: SIZE_ITEM * index,
+                index,
+              })}
+              initialScrollIndex={3}
+              onScroll={Animated.event(
+                [
+                  {
+                    nativeEvent: {contentOffset: {x: scrollX}},
+                  },
+                ],
+                {useNativeDriver: false},
+              )}
+              scrollEventThrottle={16}
+              renderItem={({item, index}) => {
+                if (!item.path) {
+                  return (
+                    <View
+                      style={{
+                        width: (width - SIZE_ITEM) / 2,
+                      }}
+                    />
+                  );
+                }
 
-          <Companies>
-            <CompaniesItem colors={['#121f54', '#074a9e']}>
-              <CompaniesImage source={disneyLogo} resizeMode="contain" />
-            </CompaniesItem>
-            <CompaniesItem colors={['#121f54', '#074a9e']}>
-              <CompaniesImage source={pixarLogo} resizeMode="contain" />
-            </CompaniesItem>
-            <CompaniesItem colors={['#121f54', '#074a9e']}>
-              <CompaniesImage source={marvel} resizeMode="contain" />
-            </CompaniesItem>
-            <CompaniesItem colors={['#121f54', '#074a9e']}>
-              <CompaniesImage source={starWarsLogo} resizeMode="contain" />
-            </CompaniesItem>
-            <CompaniesItem colors={['#121f54', '#074a9e']}>
-              <CompaniesImage source={nationalLogo} resizeMode="contain" />
-            </CompaniesItem>
-          </Companies>
+                const scale = scrollX.interpolate({
+                  inputRange: [
+                    (index - 2) * SIZE_ITEM,
+                    (index - 1) * SIZE_ITEM,
+                    index * SIZE_ITEM,
+                  ],
+                  outputRange: [0.9, 1, 0.9],
+                  extrapolate: 'clamp',
+                });
 
-          <Carousel>
-            <CarouselContainer>
-              <TitleCorousel>Recommended For You</TitleCorousel>
-              {loading && <Loading size="large" color="#22bcbf" />}
-              <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}>
-                <CarouselContainerItem movies={movies} />
-              </ScrollView>
-            </CarouselContainer>
+                return (
+                  <View
+                    style={{
+                      width: SIZE_ITEM,
+                      height: 250,
+                    }}>
+                    <Animated.View
+                      style={{
+                        marginHorizontal: 0,
+                        alignItems: 'center',
+                        transform: [{scale}],
+                      }}>
+                      <Image
+                        source={item.path}
+                        style={{
+                          width: '100%',
+                          borderRadius: 5,
+                          height: '100%',
+                        }}
+                      />
+                    </Animated.View>
+                  </View>
+                );
+              }}
+            />
+            <Companies>
+              <CompaniesItem colors={['#121f54', '#074a9e']}>
+                <CompaniesImage source={disneyLogo} resizeMode="contain" />
+              </CompaniesItem>
+              <CompaniesItem colors={['#121f54', '#074a9e']}>
+                <CompaniesImage source={pixarLogo} resizeMode="contain" />
+              </CompaniesItem>
+              <CompaniesItem colors={['#121f54', '#074a9e']}>
+                <CompaniesImage source={marvel} resizeMode="contain" />
+              </CompaniesItem>
+              <CompaniesItem colors={['#121f54', '#074a9e']}>
+                <CompaniesImage source={starWarsLogo} resizeMode="contain" />
+              </CompaniesItem>
+              <CompaniesItem colors={['#121f54', '#074a9e']}>
+                <CompaniesImage source={nationalLogo} resizeMode="contain" />
+              </CompaniesItem>
+            </Companies>
 
-            <CarouselContainer>
-              <TitleCorousel>New to Disney+</TitleCorousel>
-              {loading && <Loading size="large" color="#22bcbf" />}
-              <ScrollView
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}>
-                <CarouselContainerItem movies={movies} />
-              </ScrollView>
-            </CarouselContainer>
-          </Carousel>
-        </ScrollView>
-      </Container>
-    </ContainerGradient>
+            <Carousel>
+              <CarouselContainer>
+                <TitleCorousel>Recommended For You</TitleCorousel>
+                {loading && <Loading size="large" color="#22bcbf" />}
+                <ScrollView
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}>
+                  <CarouselContainerItem movies={movies} />
+                </ScrollView>
+              </CarouselContainer>
+
+              <CarouselContainer>
+                <TitleCorousel>New to Disney+</TitleCorousel>
+                {loading && <Loading size="large" color="#22bcbf" />}
+                <ScrollView
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}>
+                  <CarouselContainerItem movies={movies} />
+                </ScrollView>
+              </CarouselContainer>
+            </Carousel>
+          </ScrollView>
+        </Container>
+      </ContainerGradient>
+    </>
   );
 };
 

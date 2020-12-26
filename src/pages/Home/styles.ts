@@ -7,7 +7,6 @@ export const ContainerGradient = styled(LinearGradient)`
 
 export const Container = styled.SafeAreaView`
   flex: 1;
-  padding: 0 10px;
 `;
 
 export const Header = styled.View`
@@ -21,22 +20,13 @@ export const Logo = styled.Image`
   height: 100px;
 `;
 
-export const SwiperContainerImage = styled.View`
-  align-items: center;
-`;
-
-export const ImageSwiper = styled.Image`
-  width: 99%;
-  height: 220px;
-  border-radius: 5px;
-`;
-
 export const Companies = styled.View`
   width: 100%;
   flex-direction: row;
   margin-top: 20px;
   align-items: center;
   justify-content: space-around;
+  padding: 0 10px;
 `;
 export const CompaniesItem = styled(LinearGradient)`
   width: 65px;
@@ -54,6 +44,7 @@ export const CompaniesImage = styled.Image`
 `;
 
 export const Carousel = styled.View`
+  padding: 0 10px;
   padding-bottom: 20px;
 `;
 
