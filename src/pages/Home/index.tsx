@@ -75,7 +75,7 @@ const Home: React.FC = () => {
               bounces={false}
               getItemLayout={(item, index) => ({
                 length: SIZE_ITEM,
-                offset: SIZE_ITEM * index,
+                offset: SIZE_ITEM,
                 index,
               })}
               initialScrollIndex={3}
